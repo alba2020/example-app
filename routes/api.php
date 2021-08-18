@@ -1,8 +1,7 @@
 <?php
 
-use App\Exceptions\CustomException;
-use App\Models\User;
-use App\Translation\TranslationService;
+use App\TExceptions\NonReportable\TAuthException;
+use App\TExceptions\Reportable\TGeneralReportableException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,10 +20,18 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('cat', function () {
-    return [
-        'cat' => 'the cat111',
-    ];
+Route::get('cat', function() {
+    return 'the cat';
+});
+
+Route::get('val', function (Request $request) {
+    $request->validate([
+        'name' => 'string|required',
+        'x' => 'integer|required',
+        'email' => 'email',
+    ]);
+
+    return [ 'validation' => 'ok' ];
 });
 
 //Route::get('users', function (Request $request) {
@@ -34,11 +41,21 @@ Route::get('cat', function () {
 //    ];
 //});
 
-Route::get('ex1', function (Request $request) {
-    $lang = $request->input('lang', 'en');
-    $t = new TranslationService($lang);
-    $msg = $t->_('Exceptions', 'Custom');
-    $msg = $t->_('EX_CUSTOM');
+//Route::get('ex1', function (Request $request) {
+//    $lang = $request->input('lang', 'en');
+//    $t = new TranslationService($lang);
+//    $msg = $t->_('Exceptions', 'Custom');
+//    $msg = $t->_('EX_CUSTOM');
+//
+//    throw new CustomException($msg);
+//});
 
-    throw new CustomException($msg);
+Route::get('ex/{x}', function($x) {
+
+    if ($x == 'auth') {
+        throw (new TAuthException())->withData('nothing here');
+    } else {
+        throw (new TGeneralReportableException())->withData(['key' => 'value']);
+    }
+
 });
