@@ -52,7 +52,9 @@ Route::get('val', function (Request $request) {
 
 Route::get('ex/{x}', function($x) {
 
-    if ($x == 'auth') {
+    if ($x == 'x') {
+        throw new \Exception('abc');
+    } elseif ($x == 'auth') {
         throw (new TAuthException())->withData('nothing here');
     } else {
         throw (new TGeneralReportableException())->withData(['key' => 'value']);
